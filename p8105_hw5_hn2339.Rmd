@@ -20,18 +20,28 @@ library(readr)
 
 ```{r message = FALSE}
 ## read all the files in the data 
-file_names = list.files(path = "./data/")
-file_path = str_c("./data/", file_names)
+names = list.files(path = "./data/")
+path = str_c("./data/", names)
 ## combine all files into one dataframe 
 con_exp =
-  tibble(test_subject = file_names) %>% 
-  mutate(data = map(file_path, read_csv)) %>% 
+  tibble(test_subject = names) %>% 
+  mutate(data = map(path, read_csv)) %>% 
   unnest()
 ## tidy the data 
 con_exp = janitor::clean_names(con_exp) %>% 
    mutate(test_subject = str_replace(test_subject, ".csv", "")) %>% 
-   separate(test_subject, into = c("group", "id"), sep = "_")
+   separate(test_subject, into = c("group", "id"), sep = "_") %>% 
+   mutate(id = as.integer(id))
 ## make spaghetti plot
-
+con_exp %>% 
+  gather(key = week, value = data, week_1:week_8) %>% 
+  ggplot(aes(x = week, y = data, color = group, group = id)) +
+    geom_line() + 
+    geom_point() +
+  facet_grid(~group) +
+  ggtitle("Observations on each subject over time") +
+  theme(legend.position = "top") + 
+  labs(x = "Week",
+       y = "Data")
 ```
-
+From this spaghetti plot, 
