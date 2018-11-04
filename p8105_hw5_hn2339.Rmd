@@ -44,4 +44,4 @@ con_exp %>%
   labs(x = "Week",
        y = "Data")
 ```
-From this spaghetti plot, 
+From this spaghetti plot, the experimental group arm has generally higher data than control group arm. In week 1, the observation difference between control and experimental group is small. But in week 8, all subjects in the experimental group has higher observation compared to the control group. Subjects in the experimental group has generall increasing observation data. However, in the control group, the difference between week 1 and week 8 is very small. 
