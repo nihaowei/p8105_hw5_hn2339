@@ -31,16 +31,17 @@ con_exp =
 con_exp = janitor::clean_names(con_exp) %>% 
    mutate(test_subject = str_replace(test_subject, ".csv", "")) %>% 
    separate(test_subject, into = c("group", "id"), sep = "_") %>% 
-   mutate(id = as.integer(id))
+   mutate(id = as.factor(id), 
+          group = as.factor(group))
 ## make spaghetti plot
-con_exp %>% 
+  con_exp %>% 
   gather(key = week, value = observation, week_1:week_8) %>% 
   ggplot(aes(x = week, y = observation, color = group, group = id)) +
     geom_line() + 
     geom_point() +
   facet_grid(~group) +
   ggtitle("Observations on each subject over time") +
-  theme(legend.position = "top") + 
+  theme(text = element_text(size = 6), axis.text.x = element_text(angle = 60, hjust = 1)) + 
   labs(x = "Week",
        y = "Observation")
 ```
@@ -99,7 +100,6 @@ Make a plot
 
 ```{r}
   Proportion_df %>% 
-  # organize as the descending order 
   mutate(city_state = fct_reorder(city_state, estimate)) %>% 
   ggplot(aes(x = city_state, y = estimate, color = city_state)) + 
   geom_point() +
