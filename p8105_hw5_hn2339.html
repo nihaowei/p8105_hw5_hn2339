@@ -129,12 +129,12 @@ $(document).ready(function () {
 
 
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ─ Attaching packages ──────────────────────── tidyverse 1.2.1 ─</code></pre>
+<pre><code>## ─ Attaching packages ──────────────────── tidyverse 1.2.1 ─</code></pre>
 <pre><code>## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
 ## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
 ## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
 ## ✔ readr   1.1.1     ✔ forcats 0.3.0</code></pre>
-<pre><code>## ─ Conflicts ────────────────────────── tidyverse_conflicts() ─
+<pre><code>## ─ Conflicts ───────────────────── tidyverse_conflicts() ─
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(dplyr)
@@ -204,6 +204,18 @@ con_exp %&gt;%
   select(city_state, total_number, unsolved) %&gt;% 
   unnest() %&gt;% 
   rename(total_number = n, unsolved = n1)</code></pre>
+<p>Estimate proportion and confidence interval</p>
+<pre class="r"><code>Baltimore = Count_number %&gt;% 
+  filter(city_state == &quot;Baltimore_MD&quot;)  
+  Output = prop.test(Baltimore$unsolved, Baltimore$total_number) %&gt;% 
+  broom::tidy() %&gt;% 
+  select(estimate, conf.low, conf.high)</code></pre>
+<pre class="r"><code>  Proportion = map2(.x = Count_number$unsolved, .y = Count_number$total_number, ~ prop.test(.x, .y)) </code></pre>
+<pre><code>## Warning in prop.test(.x, .y): Chi-squared approximation may be incorrect</code></pre>
+<pre class="r"><code>  Proportion_df = map_df(.x = Proportion, ~ .x %&gt;% broom::tidy(.x) %&gt;% select(estimate, conf.low, conf.high)) %&gt;% 
+  mutate(city_state = Count_number$city_state) %&gt;% 
+  select(city_state, estimate, conf.low, conf.high)</code></pre>
+<p>Make a plot</p>
 </div>
 
 

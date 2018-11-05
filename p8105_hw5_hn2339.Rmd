@@ -82,12 +82,22 @@ Estimate proportion and confidence interval
 
 ```{r}
 Baltimore = Count_number %>% 
-  filter(city_state == "Baltimore_MD") %>% 
-  prop.test(Baltimore$unsolved, Baltimore$total_number) 
+  filter(city_state == "Baltimore_MD")  
+  Output = prop.test(Baltimore$unsolved, Baltimore$total_number) %>% 
+  broom::tidy() %>% 
+  select(estimate, conf.low, conf.high)
 ```
 
 ```{r}
   Proportion = map2(.x = Count_number$unsolved, .y = Count_number$total_number, ~ prop.test(.x, .y)) 
-  Proportion_df = map_df(.x = Proportion, ~ .x %>% broom::tidy(.x) %>% select(estimate, conf.low, conf.high)) 
+  Proportion_df = map_df(.x = Proportion, ~ .x %>% broom::tidy(.x) %>% select(estimate, conf.low, conf.high)) %>% 
+  mutate(city_state = Count_number$city_state) %>% 
+  select(city_state, estimate, conf.low, conf.high)
+```
+
+Make a plot 
+
+```{r}
+
 ```
 
