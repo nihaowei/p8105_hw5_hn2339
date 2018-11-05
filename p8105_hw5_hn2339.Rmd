@@ -98,6 +98,10 @@ Baltimore = Count_number %>%
 Make a plot 
 
 ```{r}
-
+  Proportion_df %>% 
+  # organize as the descending order 
+  mutate(city_state = fct_reorder(city_state, estimate)) %>% 
+  ggplot(aes(x = city_state, y = estimate, color = city_state)) + 
+  geom_point()
 ```
 
