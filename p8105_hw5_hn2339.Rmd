@@ -20,8 +20,8 @@ library(readr)
 
 ```{r message = FALSE}
 ## read all the files in the data 
-names = list.files(path = "./data/")
-path = str_c("./data/", names)
+names = list.files(path = "./data/Con_Exp/")
+path = str_c("./data/Con_Exp/", names)
 ## combine all files into one dataframe 
 con_exp =
   tibble(test_subject = names) %>% 
@@ -34,27 +34,60 @@ con_exp = janitor::clean_names(con_exp) %>%
    mutate(id = as.integer(id))
 ## make spaghetti plot
 con_exp %>% 
-  gather(key = week, value = data, week_1:week_8) %>% 
-  ggplot(aes(x = week, y = data, color = group, group = id)) +
+  gather(key = week, value = observation, week_1:week_8) %>% 
+  ggplot(aes(x = week, y = observation, color = group, group = id)) +
     geom_line() + 
     geom_point() +
   facet_grid(~group) +
   ggtitle("Observations on each subject over time") +
   theme(legend.position = "top") + 
   labs(x = "Week",
-       y = "Data")
+       y = "Observation")
 ```
 From this spaghetti plot, the experimental group arm has generally higher data than control group arm. In week 1, the observation difference between control and experimental group is small. But in week 8, all subjects in the experimental group has higher observation compared to the control group. Subjects in the experimental group has generall increasing observation data. However, in the control group, the difference between week 1 and week 8 is very small. 
 
 ## Question 2 
 
 ```{r}
-homocide =  read_csv("data/homicide-data.csv") %>% 
+homicide =  read_csv("data/homicide-data.csv") %>% 
   janitor::clean_names()
 ```
 There are totally 12 variables and 52179 objects in the data set. Variables tell the reported date, victim's name, race, age, sex, exact location and disposition. 
 
-```{r}
+Creat a new variable
 
+```{r}
+homicide = 
+  homicide %>% 
+  mutate(city_state = str_c(city, state, sep = "_")) 
+```
+
+Get total number of homicides and the number of unsolved homicides
+
+```{r}
+Count_number = 
+  homicide %>%
+  ## get total number of homicides and the number of unsolved homicides
+  group_by(city_state) %>% 
+  nest() %>%
+  mutate(total_number = map(.x = data, ~ count(.x)), 
+         unsolved = map(.x = data, ~.x %>% 
+                        filter(disposition %in% c("Closed without arrest","Open/No arrest")) %>% count())) %>% 
+  select(city_state, total_number, unsolved) %>% 
+  unnest() %>% 
+  rename(total_number = n, unsolved = n1)
+```
+
+Estimate proportion and confidence interval 
+
+```{r}
+Baltimore = Count_number %>% 
+  filter(city_state == "Baltimore_MD") %>% 
+  prop.test(Baltimore$unsolved, Baltimore$total_number) 
+```
+
+```{r}
+  Proportion = map2(.x = Count_number$unsolved, .y = Count_number$total_number, ~ prop.test(.x, .y)) 
+  Proportion_df = map_df(.x = Proportion, ~ .x %>% broom::tidy(.x) %>% select(estimate, conf.low, conf.high)) 
 ```
 
