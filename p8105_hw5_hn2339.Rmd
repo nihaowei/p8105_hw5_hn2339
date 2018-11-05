@@ -102,6 +102,14 @@ Make a plot
   # organize as the descending order 
   mutate(city_state = fct_reorder(city_state, estimate)) %>% 
   ggplot(aes(x = city_state, y = estimate, color = city_state)) + 
-  geom_point()
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) + 
+  ggtitle("Esitmate and CI for each city ") +
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal",
+        axis.text.x = element_text(angle = 90, size = 6),
+        legend.key.size = unit(0.05, "cm")) + 
+  labs(x = "City",
+       y = "Estimate") 
 ```
 
